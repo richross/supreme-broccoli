@@ -40,6 +40,6 @@ jobs:
         login-server: "acrsamplecontainerapp.azurecr.io"
 
     - run: |
-        docker build . -t acrsamplecontainerapp.azurecr.io/k8sdemo:${{ github.sha }}
+        docker build ./SampleWeb -t acrsamplecontainerapp.azurecr.io/k8sdemo:${{ github.sha }}
         docker push acrsamplecontainerapp.azurecr.io/k8sdemo:${{ github.sha }}
     
