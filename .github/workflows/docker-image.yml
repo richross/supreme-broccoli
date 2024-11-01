@@ -1,0 +1,45 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
+
+defaults:
+  run:
+    working-directory: src
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Azure Login
+      uses: Azure/login@v2.2.0
+      with:
+        # ClientId of the Azure Service principal created.
+        client-id: ${{secrets.AZURE_CLIENT_ID}}
+        # TenantId of the Azure Service principal created.
+        tenant-id: ${{secrets.AZURE_TENANT_ID}}
+        # Azure subscriptionId
+        subscription-id: ${{secrets.AZURE_SUBSCRIPTION_ID}}
+    - name: Azure Container Registry Login
+      uses: Azure/docker-login@v1
+      with:
+        # Container registry username
+        username: ${{secrets.ACR_Username}}
+        # Container registry password
+        password: ${{secrets.ACR_Password}} 
+        # Container registry server url
+        login-server: "acrsamplecontainerapp.azurecr.io"
+
+    - run: |
+        docker build . -t acrsamplecontainerapp.azurecr.io/k8sdemo:${{ github.sha }}
+        docker push acrsamplecontainerapp.azurecr.io/k8sdemo:${{ github.sha }}
+    
